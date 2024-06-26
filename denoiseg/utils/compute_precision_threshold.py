@@ -1,15 +1,31 @@
 import numpy as np
 from numba import jit
+from numba import njit
 from scipy import ndimage
 from tqdm import tqdm, tqdm_notebook
 
 
-@jit
+# @jit
+# def pixel_sharing_bipartite(lab1, lab2):
+#     assert lab1.shape == lab2.shape
+#     psg = np.zeros((lab1.max() + 1, lab2.max() + 1), dtype=int)
+#     for i in range(lab1.size):
+#         psg[lab1.flat[i], lab2.flat[i]] += 1
+#     return psg
+
+@njit
 def pixel_sharing_bipartite(lab1, lab2):
+    """
+    :param lab1: int array, (y, x)
+    :param lab2: int array, (y, x)
+    :return: (n_lab1, n_lab2)
+    """
     assert lab1.shape == lab2.shape
-    psg = np.zeros((lab1.max() + 1, lab2.max() + 1), dtype=int)
-    for i in range(lab1.size):
-        psg[lab1.flat[i], lab2.flat[i]] += 1
+    # Use a more specific integer type for the 'dtype' argument
+    psg = np.zeros((lab1.max() + 1, lab2.max() + 1), dtype=np.int64) 
+    for y in range(lab1.shape[0]):
+        for x in range(lab1.shape[1]):
+            psg[lab1[y, x], lab2[y, x]] += 1
     return psg
 
 
