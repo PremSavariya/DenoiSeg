@@ -15,6 +15,7 @@ from csbdeep.utils.tf import export_SavedModel
 from tensorflow.keras import backend as K
 from tensorflow.keras.callbacks import TerminateOnNaN
 from tensorflow.keras import mixed_precision
+from tensorflow.keras.layers import Dropout
 
 from n2v.utils import n2v_utils
 from scipy import ndimage
@@ -108,11 +109,11 @@ class DenoiSeg(CARE):
             n_first=self.config.unet_n_first,
             last_activation=self.config.unet_last_activation,
             batch_norm=self.config.batch_norm,
-            unet_dropout=self.config.unet_dropout
+            dropout = self.config.unet_dropout
         )(self.config.unet_input_shape)
 
     def _build_unet(self, n_dim=2, n_depth=2, kern_size=3, n_first=32, n_channel_out=1, residual=False,
-                    last_activation='linear', batch_norm=True, unet_dropout=0.5):
+                    last_activation='linear', batch_norm=True, dropout=0.5):
         """Construct a common CARE neural net based on U-Net [1]_ to be used for image segmentation.
            Parameters
            ----------
@@ -145,7 +146,7 @@ class DenoiSeg(CARE):
         def _build_this(input_shape):
             return nets.custom_unet(input_shape, last_activation, n_depth, n_first, (kern_size,) * n_dim,
                                     pool_size=(2,) * n_dim, n_channel_out=n_channel_out, residual=residual,
-                                    prob_out=False, batch_norm=batch_norm, unet_dropout=unet_dropout)
+                                    prob_out=False, batch_norm=batch_norm, dropout=dropout)
 
         return _build_this
 
